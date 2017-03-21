@@ -23,6 +23,7 @@ import org.gnome.gtk.MenuBar;
 import org.gnome.gtk.MenuItem;
 import org.gnome.gtk.MenuToolButton;
 import org.gnome.gtk.SeparatorMenuItem;
+import org.gnome.gtk.Statusbar;
 import org.gnome.gtk.Stock;
 import org.gnome.gtk.ToggleToolButton;
 import org.gnome.gtk.ToolButton;
@@ -43,8 +44,11 @@ import org.gnome.gtk.Window;
  */
 public class Gitmarks {
 
-  public static void dispatcher(String source, String command) {
+  private final Statusbar statusbar = new Statusbar();
+
+  public void dispatcher(String source, String command) {
     System.out.println("Source: " + source + " - command: " + command);
+    statusbar.setMessage("Source: " + source + " - command: " + command);
   }
 
   public Gitmarks() {
@@ -55,20 +59,14 @@ public class Gitmarks {
     acceleratorGroup = new AcceleratorGroup();
     window.addAcceleratorGroup(acceleratorGroup);
 
-    final VBox box;
-    box = new VBox(false, 3);
-    window.add(box);
+    final VBox vBox;
+    vBox = new VBox(false, 3);
+    window.add(vBox);
 
-    final Label label;
-
-    label = new Label("Select an action in a menu");
-    label.setWidthChars(30);
-    label.setAlignment(0.0f, 0.5f);
-
-    box.packStart(makeMenu(acceleratorGroup), false, false, 0);
-    box.packStart(makeToolbar(), false, false, 0);
-    box.packStart(makeTree(), false, false, 0);
-    box.packStart(label, false, false, 0);
+    vBox.packStart(makeMenu(acceleratorGroup), false, false, 0);
+    vBox.packStart(makeToolbar(), false, false, 0);
+    vBox.packStart(makeTree(), false, false, 0);
+    vBox.packEnd(statusbar, false, false, 0);
 
     window.setTitle("Gitmarks");
     window.showAll();
@@ -96,7 +94,7 @@ public class Gitmarks {
 
     buttonNew.connect(new ToolButton.Clicked() {
       public void onClicked(ToolButton source) {
-        Gitmarks.dispatcher("toolbar-new","You have clicked NEW ToolButton");
+        Gitmarks.this.dispatcher("toolbar-new","You have clicked NEW ToolButton");
       }
     });
 
@@ -114,12 +112,12 @@ public class Gitmarks {
     openMenu = new Menu();
     openMenu.append(new MenuItem("File _A", new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        Gitmarks.dispatcher("toolbar-openmenu","You have selected File A in the Menu");
+        Gitmarks.this.dispatcher("toolbar-openmenu","You have selected File A in the Menu");
       }
     }));
     openMenu.append(new MenuItem("File _B", new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        Gitmarks.dispatcher("toolbar-openmenu","You have selected File B in the Menu");
+        Gitmarks.this.dispatcher("toolbar-openmenu","You have selected File B in the Menu");
       }
     }));
     openMenu.showAll();
@@ -202,18 +200,18 @@ public class Gitmarks {
      */
     nouveau.connect(new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        Gitmarks.dispatcher("connect", "You have selected File->New menu.");
+        Gitmarks.this.dispatcher("connect", "You have selected File->New menu.");
       }
     });
     save.connect(new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        Gitmarks.dispatcher("save", "You have selected File->Save.");
+        Gitmarks.this.dispatcher("save", "You have selected File->Save.");
       }
     });
 
     close.connect(new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        Gitmarks.dispatcher("close", "You have selected File->Close.");
+        Gitmarks.this.dispatcher("close", "You have selected File->Close.");
       }
     });
 
@@ -232,12 +230,12 @@ public class Gitmarks {
      */
     copy.connect(new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        Gitmarks.dispatcher("edit-copy", "You have selected Edit->Copy.");
+        Gitmarks.this.dispatcher("edit-copy", "You have selected Edit->Copy.");
       }
     });
     paste.connect(new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        Gitmarks.dispatcher("edit-paste", "You have selected Edit->Paste.");
+        Gitmarks.this.dispatcher("edit-paste", "You have selected Edit->Paste.");
       }
     });
 
@@ -249,9 +247,9 @@ public class Gitmarks {
     viewMenu.append(new CheckMenuItem("Hide _text", new CheckMenuItem.Toggled() {
       public void onToggled(CheckMenuItem source) {
         if (source.getActive()) {
-          Gitmarks.dispatcher("view-hidetoggle", "label.hide");
+          Gitmarks.this.dispatcher("view-hidetoggle", "label.hide");
         } else {
-          Gitmarks.dispatcher("view-hidetoggle", "label.hide");
+          Gitmarks.this.dispatcher("view-hidetoggle", "label.hide");
         }
       }
     }));
