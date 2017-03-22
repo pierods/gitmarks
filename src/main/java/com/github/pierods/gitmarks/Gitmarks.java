@@ -15,6 +15,7 @@ import org.gnome.gtk.DataColumnBoolean;
 import org.gnome.gtk.DataColumnInteger;
 import org.gnome.gtk.DataColumnString;
 import org.gnome.gtk.Gtk;
+import org.gnome.gtk.HBox;
 import org.gnome.gtk.ImageMenuItem;
 import org.gnome.gtk.InfoBar;
 import org.gnome.gtk.ListStore;
@@ -62,14 +63,18 @@ public class Gitmarks {
     window.addAcceleratorGroup(acceleratorGroup);
 
     final VBox vBox;
+    final HBox hBox;
     vBox = new VBox(false, 3);
     window.add(vBox);
+    hBox = new HBox(false, 3);
+
 
     vBox.packStart(makeMenu(acceleratorGroup), false, false, 0);
     vBox.packStart(makeToolbar(), false, false, 0);
-    vBox.packStart(makeItemList(), false, false, 0);
-    vBox.packStart(makeTree(), false, false, 0);
-    vBox.packEnd(statusbar, false, false, 0);
+    hBox.packStart(makeTree(), true, true, 0);
+    hBox.packStart(makeItemList(), true, true, 0);
+    vBox.packStart(hBox, true, false, 0);
+    vBox.packEnd(statusbar, false, true, 0);
 
     window.setTitle("Gitmarks");
     window.showAll();
