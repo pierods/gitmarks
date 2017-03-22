@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class Bookmark {
   String type;
   String guid;
+  int id;
   String title;
   int index;
   LocalDateTime dateAdded, lastModified;

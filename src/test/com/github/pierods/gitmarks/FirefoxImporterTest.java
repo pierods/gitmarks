@@ -26,7 +26,7 @@ public class FirefoxImporterTest {
 
     FirefoxImporter fi = new FirefoxImporter();
 
-    fi.importFirefoxJson("");
+    fi.importFirefoxJson("/home/piero/temp/bookmarks-2017-03-22.json");
 
 
   }

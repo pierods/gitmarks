@@ -23,7 +23,7 @@ import java.util.Date;
  */
 public class FirefoxImporter {
 
-  public void importFirefoxJson(String fileURI) {
+  public Bookmark importFirefoxJson(String fileURI) {
 
     GsonBuilder gsonBuilder = new GsonBuilder();
     gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer()).registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer());
@@ -37,7 +37,7 @@ public class FirefoxImporter {
       throw new RuntimeException(e);
     }
 
-    gson.fromJson(reader, Bookmark.class);
+    return gson.fromJson(reader, Bookmark.class);
   }
 
   class LocalDateTimeSerializer implements JsonSerializer<LocalDateTime> {
@@ -46,16 +46,26 @@ public class FirefoxImporter {
     public JsonElement serialize(LocalDateTime localDateTime, Type type, JsonSerializationContext jsonSerializationContext) {
       Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
       Date date = Date.from(instant);
-      return new JsonPrimitive(date.getTime());
+      Long regularDate = date.getTime();
+      String firefoxDate = Long.toString(regularDate) + "000";
+      Long firefoxDateLong = Long.parseLong(firefoxDate);
+      return new JsonPrimitive(firefoxDateLong);
     }
   }
 
   class LocalDateTimeDeserializer implements JsonDeserializer<LocalDateTime> {
 
     @Override
-    public LocalDateTime deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext)
-        throws JsonParseException {
-      Instant instant = Instant.ofEpochMilli(jsonElement.getAsJsonPrimitive().getAsLong());
+    public LocalDateTime deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext)  throws JsonParseException {
+
+      String firefoxString = jsonElement.getAsJsonPrimitive().getAsString();
+
+      firefoxString = firefoxString.substring(0, firefoxString.length() - 3);
+
+      Long normalDate = Long.parseLong(firefoxString);
+
+      Instant instant = Instant.ofEpochMilli(normalDate);
+
       return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
   }
