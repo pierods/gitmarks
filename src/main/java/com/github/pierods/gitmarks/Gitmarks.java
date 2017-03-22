@@ -16,13 +16,14 @@ import org.gnome.gtk.DataColumnInteger;
 import org.gnome.gtk.DataColumnString;
 import org.gnome.gtk.Gtk;
 import org.gnome.gtk.ImageMenuItem;
-import org.gnome.gtk.Label;
+import org.gnome.gtk.InfoBar;
 import org.gnome.gtk.ListStore;
 import org.gnome.gtk.Menu;
 import org.gnome.gtk.MenuBar;
 import org.gnome.gtk.MenuItem;
 import org.gnome.gtk.MenuToolButton;
 import org.gnome.gtk.SeparatorMenuItem;
+import org.gnome.gtk.SortType;
 import org.gnome.gtk.Statusbar;
 import org.gnome.gtk.Stock;
 import org.gnome.gtk.ToggleToolButton;
@@ -31,6 +32,7 @@ import org.gnome.gtk.ToolItem;
 import org.gnome.gtk.Toolbar;
 import org.gnome.gtk.TreeIter;
 import org.gnome.gtk.TreePath;
+import org.gnome.gtk.TreeStore;
 import org.gnome.gtk.TreeView;
 import org.gnome.gtk.TreeViewColumn;
 import org.gnome.gtk.VBox;
@@ -65,6 +67,7 @@ public class Gitmarks {
 
     vBox.packStart(makeMenu(acceleratorGroup), false, false, 0);
     vBox.packStart(makeToolbar(), false, false, 0);
+    vBox.packStart(makeItemList(), false, false, 0);
     vBox.packStart(makeTree(), false, false, 0);
     vBox.packEnd(statusbar, false, false, 0);
 
@@ -94,7 +97,7 @@ public class Gitmarks {
 
     buttonNew.connect(new ToolButton.Clicked() {
       public void onClicked(ToolButton source) {
-        Gitmarks.this.dispatcher("toolbar-new","You have clicked NEW ToolButton");
+        Gitmarks.this.dispatcher("toolbar-new", "You have clicked NEW ToolButton");
       }
     });
 
@@ -112,12 +115,12 @@ public class Gitmarks {
     openMenu = new Menu();
     openMenu.append(new MenuItem("File _A", new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        Gitmarks.this.dispatcher("toolbar-openmenu","You have selected File A in the Menu");
+        Gitmarks.this.dispatcher("toolbar-openmenu", "You have selected File A in the Menu");
       }
     }));
     openMenu.append(new MenuItem("File _B", new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        Gitmarks.this.dispatcher("toolbar-openmenu","You have selected File B in the Menu");
+        Gitmarks.this.dispatcher("toolbar-openmenu", "You have selected File B in the Menu");
       }
     }));
     openMenu.showAll();
@@ -283,105 +286,67 @@ public class Gitmarks {
     return bar;
   }
 
-  private TreeView makeTree() {
+  private TreeView makeItemList() {
 
     final TreeView treeView;
-    final ListStore model;
+    final ListStore datastore;
     TreeIter treeRow;
     CellRendererText cellRendererText;
     TreeViewColumn vertical;
 
-    final DataColumnString placeName;
-    final DataColumnString trailHead;
-    final DataColumnString elevationFormatted;
-    final DataColumnInteger elevationSort;
-    final DataColumnBoolean accessibleByTrain;
+    final DataColumnString placeName = new DataColumnString();
+    final DataColumnString trailHead = new DataColumnString();
+    final DataColumnString elevationFormatted = new DataColumnString();
+    final DataColumnInteger elevationSort = new DataColumnInteger();
+    final DataColumnBoolean accessibleByTrain = new DataColumnBoolean();
 
-    /*
-     * So we begin our explorations of the TreeView API here. First thing
-     * is to create a model. You'll notice we declared the variables
-     * above. You don't have to do that, of course, but it makes calling
-     * the ListStore constructor more palatable. More generally, you will
-     * frequently have the DataColumns as instance field variables (so
-     * they can be accessed throughout the file), rather than just local
-     * variables. So you'll end up pre-declaring them regardless, and that
-     * makes the constructor call nice and compact:
-     */
+    // define columns
+    final DataColumn[] baseRow = new DataColumn[]{
+        placeName,
+        trailHead,
+        elevationFormatted,
+        elevationSort,
+        accessibleByTrain
+    };
 
-    model = new ListStore(new DataColumn[]{
-        placeName = new DataColumnString(),
-        trailHead = new DataColumnString(),
-        elevationFormatted = new DataColumnString(),
-        elevationSort = new DataColumnInteger(),
-        accessibleByTrain = new DataColumnBoolean()
-    });
+    // define a List Item View datastore with my base row
+    datastore = new ListStore(baseRow);
 
-    /*
-     * You almost never populate your TreeModels with data statically from
-     * your source code. We have done so here to demonstrate the use of
-     * appendRow() to get a new horizontal data treeRow and then the various
-     * forms of setValue() to store data in that treeRow.
-     *
-     * In practise, however, you will find the setting of data to be
-     * fairly involved; after all, it takes some trouble to decide what
-     * you want to display, extract if from your domain object layer and
-     * format it prior to insertion into the TreeModel for display by a
-     * TreeView.
-     *
-     * Notice the use of Pango markup in the placeName column. This can be
-     * a powerful way of improving your information density, but be aware
-     * that if some rows have multiple lines and some don't, the treeRow
-     * height will be inconsistent and will look really ugly. So make sure
-     * they all have the same font information and number of newlines. You
-     * would use utility methods to help keep things organized, of course,
-     * but we've kept it straight forward here.
-     */
+    // append rows
+    treeRow = datastore.appendRow();
+    datastore.setValue(treeRow, placeName, "Blue Mountains national park>");
+    datastore.setValue(treeRow, trailHead, "Katoomba, NSW, Australia");
+    datastore.setValue(treeRow, elevationFormatted, "1015 m");
+    datastore.setValue(treeRow, elevationSort, 1005);
+    datastore.setValue(treeRow, accessibleByTrain, true);
 
-    treeRow = model.appendRow();
-    model.setValue(treeRow, placeName,
-        "Blue Mountains national park\n<small>(Six Foot Track)</small>");
-    model.setValue(treeRow, trailHead, "Katoomba, NSW, Australia");
-    model.setValue(treeRow, elevationFormatted, "1015 m");
-    model.setValue(treeRow, elevationSort, 1005);
-    model.setValue(treeRow, accessibleByTrain, true);
+    treeRow = datastore.appendRow();
+    datastore.setValue(treeRow, placeName, "Kilimanjaro");
+    datastore.setValue(treeRow, trailHead, "Nairobi, Kenya");
+    datastore.setValue(treeRow, elevationFormatted, "5894 m");
+    datastore.setValue(treeRow, elevationSort, 5894);
+    datastore.setValue(treeRow, accessibleByTrain, false);
 
-    treeRow = model.appendRow();
-    model.setValue(treeRow, placeName, "Kilimanjaro\n<small>(Machame route)</small>");
-    model.setValue(treeRow, trailHead, "Nairobi, Kenya");
-    model.setValue(treeRow, elevationFormatted, "5894 m");
-    model.setValue(treeRow, elevationSort, 5894);
-    model.setValue(treeRow, accessibleByTrain, false);
+    treeRow = datastore.appendRow();
+    datastore.setValue(treeRow, placeName, "Appalachian Trail");
+    datastore.setValue(treeRow, trailHead, "Harpers Ferry, West Virginia, USA");
+    datastore.setValue(treeRow, elevationFormatted, "147 m");
+    datastore.setValue(treeRow, elevationSort, 147);
+    datastore.setValue(treeRow, accessibleByTrain, true);
 
-    treeRow = model.appendRow();
-    model
-        .setValue(treeRow, placeName, "Appalachian Trail\n<small>(roller coaster section)</small>");
-    model.setValue(treeRow, trailHead, "Harpers Ferry, West Virginia, USA");
-    model.setValue(treeRow, elevationFormatted, "147 m");
-    model.setValue(treeRow, elevationSort, 147);
-    model.setValue(treeRow, accessibleByTrain, true);
+    // associate my List View datastore with a treeview component
+    treeView = new TreeView(datastore);
 
-    /*
-     * Now onto the treeView side. First we need the top level TreeView which
-     * is the master Widget into which everything else is mixed.
-     */
-    treeView = new TreeView(model);
-
-    /*
-     * Now the vertical display columns. The sequence is to get a
-     * TreeViewColumn, then create the CellRenderer to be put into it, and
-     * then set whatever data mappings are appropriate along with any
-     * settings for the vertical TreeViewColumn. This is the heart of the
-     * TreeView/TreeModel API
-     *
-     * Note that we reuse the cellRendererText and vertical variables; unlike the
-     * DataColumns, there's no need to keep coming up with unique column
-     * names as you rarely need to reference them later.
-     */
+    // define first visible column - associated to first column in datastore
     vertical = treeView.appendColumn();
+    // define its title
     vertical.setTitle("Place");
+    // mark it as text (could be spinner, combo, image...)
     cellRendererText = new CellRendererText(vertical);
+    // mark it as pango-formattable (could be editable also)
     cellRendererText.setMarkup(placeName);
 
+    // define second visible column - associated with second column in datastore
     vertical = treeView.appendColumn();
     vertical.setTitle("Nearest town");
     cellRendererText = new CellRendererText(vertical);
@@ -389,51 +354,116 @@ public class Gitmarks {
     cellRendererText.setAlignment(0.0f, 0.0f);
     vertical.setExpand(true);
 
+    // define third visible column - associated to third column in datastore
     vertical = treeView.appendColumn();
     vertical.setTitle("Elevation");
     cellRendererText = new CellRendererText(vertical);
     cellRendererText.setText(elevationFormatted);
     cellRendererText.setAlignment(0.0f, 0.0f);
 
-    /*
-     * Because the elevation is a formatted String, it won't sort
-     * properly. So we use a DataColumnInteger populated with the raw
-     * altitude number to indicate the sort order. (If you don't believe
-     * me, try changing the sort column to elevationFormatted instead of
-     * elevationSort, and you'll see it order as 1015, 147, 5894). As
-     * you'll see from the documentation, setSortColumn() also makes the
-     * headers clickable, which saves you having to mess with TreeView's
-     * setHeadersClickable() or TreeViewColumn's setClickable(), although
-     * there are occasional use cases for them.
-     *
-     * Then we call emitClicked() to force the header we want things to be
-     * sorted on to actually be active. This is especially necessary if
-     * you've defined sorting for more than one vertical column, but if
-     * you want sorting on from the start, you need to call it.
-     */
+    // associate fourth colummn with third column sorting
     vertical.setSortColumn(elevationSort);
     vertical.emitClicked();
 
-    /*
-     * And that's it! You've now done everything you need to have a
-     * working TreeView.
-     *
-     * ... except that if it's for more than information, you probably
-     * want something to happen when someone clicks on a treeRow. So, we hook
-     * up a handler to the TreeView.RowActivated signal. The TreePath it
-     * gives you is the useful bit.
-     */
+    // hanndle doble click
     treeView.connect(new TreeView.RowActivated() {
       public void onRowActivated(TreeView source, TreePath path, TreeViewColumn vertical) {
         final TreeIter row;
         final String place, height;
 
+        row = datastore.getIter(path);
+
+        place = datastore.getValue(row, trailHead);
+        height = datastore.getValue(row, elevationFormatted);
+
+        Gitmarks.this.dispatcher(source.getName(), "You want to go to " + place + " in order to climb to " + height);
+      }
+    });
+    return treeView;
+  }
+
+  private TreeView makeTree() {
+
+    final TreeView treeView;
+    final TreeStore model;
+    TreeIter treeRow, childRow;
+    CellRendererText cellRendererText;
+    TreeViewColumn vertical;
+
+    final DataColumnString folderId;
+    final DataColumnInteger folderIdSort;
+    final DataColumnString folderName;
+
+    model = new TreeStore(new DataColumn[]{
+        folderId = new DataColumnString(),
+        folderIdSort = new DataColumnInteger(),
+        folderName = new DataColumnString()
+    });
+
+    // initial sort
+    //model.setSortColumn(folderIdSort, SortType.ASCENDING  );
+
+    treeRow = model.appendRow();
+    model.setValue(treeRow, folderId, Integer.toString(1));
+    model.setValue(treeRow, folderIdSort, 1);
+    model.setValue(treeRow, folderName, "Folder One");
+
+    childRow = model.appendChild(treeRow);
+    model.setValue(childRow, folderId, Integer.toString(11));
+    model.setValue(childRow, folderIdSort, 11);
+    model.setValue(childRow, folderName, "Folder One.One");
+
+    childRow = model.appendChild(treeRow);
+    model.setValue(childRow, folderId, Integer.toString(12));
+    model.setValue(childRow, folderIdSort, 12);
+    model.setValue(childRow, folderName, "Folder One.Two");
+
+    treeRow = model.appendRow();
+    model.setValue(treeRow, folderId, Integer.toString(2));
+    model.setValue(treeRow, folderIdSort, 2);
+    model.setValue(treeRow, folderName, "Folder Two");
+
+    treeRow = model.appendRow();
+    model.setValue(treeRow, folderId, Integer.toString(3));
+    model.setValue(treeRow, folderIdSort, 3);
+    model.setValue(treeRow, folderName, "Folder Three");
+
+    childRow = model.appendChild(treeRow);
+    model.setValue(childRow, folderId, Integer.toString(31));
+    model.setValue(childRow, folderIdSort, 31);
+    model.setValue(childRow, folderName, "Folder Three.One");
+
+    /*
+     * Now onto the treeView side. First we need the top level TreeView which
+     * is the master Widget into which everything else is mixed.
+     */
+    treeView = new TreeView(model);
+
+    vertical = treeView.appendColumn();
+    vertical.setTitle("ID");
+    cellRendererText = new CellRendererText(vertical);
+    cellRendererText.setText(folderId);
+    cellRendererText.setAlignment(0.0f, 0.0f);
+    vertical.setSortColumn(folderIdSort);
+
+    vertical = treeView.appendColumn();
+    vertical.setTitle("Name");
+    cellRendererText = new CellRendererText(vertical);
+    cellRendererText.setText(folderName);
+    cellRendererText.setAlignment(0.0f, 0.0f);
+
+    treeView.connect(new TreeView.RowActivated() {
+      public void onRowActivated(TreeView source, TreePath path, TreeViewColumn vertical) {
+        final TreeIter row;
+        final int id;
+        final String name;
+
         row = model.getIter(path);
 
-        place = model.getValue(row, trailHead);
-        height = model.getValue(row, elevationFormatted);
+        id = model.getValue(row, folderIdSort);
+        name = model.getValue(row, folderName);
 
-        System.out.println("You want to go to " + place + " in order to climb to " + height);
+        System.out.println("folder id " + id + " folder name " + name);
       }
     });
     return treeView;
