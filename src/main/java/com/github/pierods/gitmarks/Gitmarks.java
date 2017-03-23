@@ -4,18 +4,26 @@ package com.github.pierods.gitmarks;
  * Created by piero on 3/21/17.
  */
 
+import org.freedesktop.icons.Icon;
+import org.freedesktop.icons.PlaceIcon;
 import org.gnome.gdk.Event;
 import org.gnome.gdk.Keyval;
 import org.gnome.gdk.ModifierType;
+import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.AcceleratorGroup;
+import org.gnome.gtk.CellRendererPixbuf;
 import org.gnome.gtk.CellRendererText;
 import org.gnome.gtk.CheckMenuItem;
 import org.gnome.gtk.DataColumn;
 import org.gnome.gtk.DataColumnBoolean;
 import org.gnome.gtk.DataColumnInteger;
+import org.gnome.gtk.DataColumnPixbuf;
 import org.gnome.gtk.DataColumnString;
 import org.gnome.gtk.Gtk;
 import org.gnome.gtk.HBox;
+import org.gnome.gtk.IconSize;
+import org.gnome.gtk.IconTheme;
+import org.gnome.gtk.Image;
 import org.gnome.gtk.ImageMenuItem;
 import org.gnome.gtk.InfoBar;
 import org.gnome.gtk.ListStore;
@@ -68,10 +76,11 @@ public class Gitmarks {
     window.add(vBox);
     hBox = new HBox(false, 3);
 
+    Pixbuf folderIcon = Gtk.renderIcon(window, Stock.DIRECTORY, IconSize.SMALL_TOOLBAR);
 
     vBox.packStart(makeMenu(acceleratorGroup), false, false, 0);
     vBox.packStart(makeToolbar(), false, false, 0);
-    hBox.packStart(makeTree(), true, true, 0);
+    hBox.packStart(makeTree(folderIcon), true, true, 0);
     hBox.packStart(makeItemList(), true, true, 0);
     vBox.packStart(hBox, true, false, 0);
     vBox.packEnd(statusbar, false, true, 0);
@@ -387,7 +396,7 @@ public class Gitmarks {
     return treeView;
   }
 
-  private TreeView makeTree() {
+  private TreeView makeTree(Pixbuf folderIcon) {
 
     final TreeView treeView;
     final TreeStore model;
@@ -395,20 +404,25 @@ public class Gitmarks {
     CellRendererText cellRendererText;
     TreeViewColumn vertical;
 
+    final DataColumnPixbuf icon;
     final DataColumnString folderId;
     final DataColumnInteger folderIdSort;
     final DataColumnString folderName;
 
-    model = new TreeStore(new DataColumn[]{
+    DataColumn[] baseRow = new DataColumn[]{
+        icon = new DataColumnPixbuf(),
         folderId = new DataColumnString(),
         folderIdSort = new DataColumnInteger(),
         folderName = new DataColumnString()
-    });
+    };
+
+    model = new TreeStore(baseRow);
 
     // initial sort
     //model.setSortColumn(folderIdSort, SortType.ASCENDING  );
 
     treeRow = model.appendRow();
+    model.setValue(treeRow, icon, folderIcon);
     model.setValue(treeRow, folderId, Integer.toString(1));
     model.setValue(treeRow, folderIdSort, 1);
     model.setValue(treeRow, folderName, "Folder One");
@@ -444,11 +458,17 @@ public class Gitmarks {
      */
     treeView = new TreeView(model);
 
+
+    CellRendererPixbuf cellRendererPixbuf;
+
     vertical = treeView.appendColumn();
     vertical.setTitle("ID");
-    cellRendererText = new CellRendererText(vertical);
-    cellRendererText.setText(folderId);
-    cellRendererText.setAlignment(0.0f, 0.0f);
+    //cellRendererText = new CellRendererText(vertical);
+    //cellRendererText.setText(folderId);
+    //cellRendererText.setAlignment(0.0f, 0.0f);
+    cellRendererPixbuf = new CellRendererPixbuf(vertical);
+    cellRendererPixbuf.setPixbuf(icon);
+    
     vertical.setSortColumn(folderIdSort);
 
     vertical = treeView.appendColumn();
@@ -476,6 +496,7 @@ public class Gitmarks {
 
   public static void main(String[] args) {
     Gtk.init(args);
+
 
     new Gitmarks();
 
