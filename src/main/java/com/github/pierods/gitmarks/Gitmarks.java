@@ -468,7 +468,7 @@ public class Gitmarks {
     //cellRendererText.setAlignment(0.0f, 0.0f);
     cellRendererPixbuf = new CellRendererPixbuf(vertical);
     cellRendererPixbuf.setPixbuf(icon);
-    
+
     vertical.setSortColumn(folderIdSort);
 
     vertical = treeView.appendColumn();
