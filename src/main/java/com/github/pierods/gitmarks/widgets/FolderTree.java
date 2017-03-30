@@ -50,13 +50,13 @@ public class FolderTree {
     model.setValue(treeRow, folderName, "Folder One");
 
     childRow = model.appendChild(treeRow);
-    model.setValue(treeRow, icon, folderIcon);
+    model.setValue(childRow, icon, folderIcon);
     model.setValue(childRow, folderId, Integer.toString(11));
     model.setValue(childRow, folderIdSort, 11);
     model.setValue(childRow, folderName, "Folder One.One");
 
     childRow = model.appendChild(treeRow);
-    model.setValue(treeRow, icon, folderIcon);
+    model.setValue(childRow, icon, folderIcon);
     model.setValue(childRow, folderId, Integer.toString(12));
     model.setValue(childRow, folderIdSort, 12);
     model.setValue(childRow, folderName, "Folder One.Two");
@@ -74,7 +74,7 @@ public class FolderTree {
     model.setValue(treeRow, folderName, "Folder Three");
 
     childRow = model.appendChild(treeRow);
-    model.setValue(treeRow, icon, folderIcon);
+    model.setValue(childRow, icon, folderIcon);
     model.setValue(childRow, folderId, Integer.toString(31));
     model.setValue(childRow, folderIdSort, 31);
     model.setValue(childRow, folderName, "Folder Three.One");
