@@ -23,14 +23,9 @@ public class GitmarksMenu {
     final Menu fileMenu, editMenu, viewMenu;
     final MenuItem file, edit, view;
     final MenuItem save, copy, paste;
-    final ImageMenuItem nouveau, close;
-    final AcceleratorGroup group;
+    final ImageMenuItem nouveau, open, close;
     final MenuBar bar;
 
-
-        /*
-         * Most applications will use several Menus in a MenuBar:
-         */
     fileMenu = new Menu();
     editMenu = new Menu();
     viewMenu = new Menu();
@@ -39,6 +34,7 @@ public class GitmarksMenu {
      * Create all of MenuItems that will be used:
      */
     nouveau = new ImageMenuItem(Stock.NEW);
+    open = new ImageMenuItem(Stock.OPEN);
     save = new MenuItem("_Save");
     close = new ImageMenuItem(Stock.CLOSE);
     copy = new MenuItem("_Edit");
@@ -49,6 +45,7 @@ public class GitmarksMenu {
      * before you append them to their Menus.
      */
     save.setAccelerator(acceleratorGroup, Keyval.s, ModifierType.CONTROL_MASK);
+    open.setAccelerator(acceleratorGroup, Keyval.o, ModifierType.CONTROL_MASK);
     copy.setAccelerator(acceleratorGroup, Keyval.c, ModifierType.CONTROL_MASK);
     paste.setAccelerator(acceleratorGroup, Keyval.v, ModifierType.CONTROL_MASK);
 
@@ -70,32 +67,27 @@ public class GitmarksMenu {
     editMenu.setAcceleratorGroup(acceleratorGroup);
 
     fileMenu.append(nouveau);
+    fileMenu.append(open);
     fileMenu.append(save);
 
-    /*
-     * A SeparatorMenuItem can be used to differentiate between unrelated
-     * menu options; in practise, though, only use sparingly.
-     */
     fileMenu.append(new SeparatorMenuItem());
 
-    /*
-     * And add the rest of the menu items.
-     */
     fileMenu.append(close);
     editMenu.append(copy);
     editMenu.append(paste);
 
-    /*
-     * Usually you will want to connect to the MenuItem.Activate signal,
-     * that is emitted when the user "activates" the menu by either
-     * clicking it with the mouse or navigating to it with the keyboard
-     * and pressing <ENTER>.
-     */
     nouveau.connect(new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
         dispatcher.dispatch("connect", "You have selected File->New menu.");
       }
     });
+
+    open.connect(new MenuItem.Activate() {
+      public void onActivate(MenuItem source) {
+        dispatcher.dispatch("connect", "You have selected File->Open menu.");
+      }
+    });
+
     save.connect(new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
         dispatcher.dispatch("save", "You have selected File->Save.");

@@ -7,6 +7,7 @@ import org.gnome.gtk.MenuToolButton;
 import org.gnome.gtk.Stock;
 import org.gnome.gtk.ToggleToolButton;
 import org.gnome.gtk.ToolButton;
+import org.gnome.gtk.ToolButton.Clicked;
 import org.gnome.gtk.ToolItem;
 
 /**
@@ -16,7 +17,7 @@ public class GitmarksToolbar {
 
   public org.gnome.gtk.Toolbar makeToolbar(final Gitmarks.Dispatcher dispatcher) {
     final org.gnome.gtk.Toolbar toolbar;
-    final ToolButton buttonNew;
+    final ToolButton buttonNew, buttonOpen;
     final MenuToolButton mtb;
     final Menu openMenu;
     final ToolItem item;
@@ -29,10 +30,19 @@ public class GitmarksToolbar {
 
     buttonNew.connect(new ToolButton.Clicked() {
       public void onClicked(ToolButton source) {
+
         dispatcher.dispatch("toolbar-new", "You have clicked NEW ToolButton");
       }
     });
 
+    buttonOpen = new ToolButton(Stock.OPEN);
+    toolbar.add(buttonOpen);
+    buttonOpen.connect(new ToolButton.Clicked() {
+      @Override
+      public void onClicked(ToolButton toolButton) {
+        dispatcher.dispatch("toolbar-open", "You have clicked the OPEN ToolButton");
+      }
+    });
          /*
          * Sometimes you need a ToolButton that also has a dropdown Menu, to
          * allow the user select alternative actions. You can do that with a
