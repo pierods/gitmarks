@@ -50,26 +50,31 @@ public class FolderTree {
     model.setValue(treeRow, folderName, "Folder One");
 
     childRow = model.appendChild(treeRow);
+    model.setValue(treeRow, icon, folderIcon);
     model.setValue(childRow, folderId, Integer.toString(11));
     model.setValue(childRow, folderIdSort, 11);
     model.setValue(childRow, folderName, "Folder One.One");
 
     childRow = model.appendChild(treeRow);
+    model.setValue(treeRow, icon, folderIcon);
     model.setValue(childRow, folderId, Integer.toString(12));
     model.setValue(childRow, folderIdSort, 12);
     model.setValue(childRow, folderName, "Folder One.Two");
 
     treeRow = model.appendRow();
+    model.setValue(treeRow, icon, folderIcon);
     model.setValue(treeRow, folderId, Integer.toString(2));
     model.setValue(treeRow, folderIdSort, 2);
     model.setValue(treeRow, folderName, "Folder Two");
 
     treeRow = model.appendRow();
+    model.setValue(treeRow, icon, folderIcon);
     model.setValue(treeRow, folderId, Integer.toString(3));
     model.setValue(treeRow, folderIdSort, 3);
     model.setValue(treeRow, folderName, "Folder Three");
 
     childRow = model.appendChild(treeRow);
+    model.setValue(treeRow, icon, folderIcon);
     model.setValue(childRow, folderId, Integer.toString(31));
     model.setValue(childRow, folderIdSort, 31);
     model.setValue(childRow, folderName, "Folder Three.One");
@@ -84,30 +89,23 @@ public class FolderTree {
     CellRendererPixbuf cellRendererPixbuf;
 
     vertical = treeView.appendColumn();
-    vertical.setTitle("ID");
-    //cellRendererText = new CellRendererText(vertical);
-    //cellRendererText.setText(folderId);
-    //cellRendererText.setAlignment(0.0f, 0.0f);
+    vertical.setTitle("Name");
     cellRendererPixbuf = new CellRendererPixbuf(vertical);
     cellRendererPixbuf.setPixbuf(icon);
-
-    vertical.setSortColumn(folderIdSort);
-
-    vertical = treeView.appendColumn();
-    vertical.setTitle("Name");
     cellRendererText = new CellRendererText(vertical);
     cellRendererText.setText(folderName);
     cellRendererText.setAlignment(0.0f, 0.0f);
 
+
     treeView.connect(new TreeView.RowActivated() {
       public void onRowActivated(TreeView source, TreePath path, TreeViewColumn vertical) {
         final TreeIter row;
-        final int id;
+        final String id;
         final String name;
 
         row = model.getIter(path);
 
-        id = model.getValue(row, folderIdSort);
+        id = model.getValue(row, folderId);
         name = model.getValue(row, folderName);
 
         System.out.println("folder id " + id + " folder name " + name);

@@ -43,7 +43,7 @@ public class Gitmarks {
 
   public Gitmarks() {
 
-    Dispatcher dispatcher = new StatusBarDispatcher();
+    final Dispatcher dispatcher = new StatusBarDispatcher();
     final Window window = new Window();
     final AcceleratorGroup acceleratorGroup;
 
@@ -52,6 +52,7 @@ public class Gitmarks {
 
     final VBox vBox;
     final HBox hBox;
+
     vBox = new VBox(false, 3);
     window.add(vBox);
     hBox = new HBox(false, 3);
