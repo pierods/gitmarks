@@ -84,7 +84,7 @@ public class GitmarksMenu {
 
     open.connect(new MenuItem.Activate() {
       public void onActivate(MenuItem source) {
-        dispatcher.dispatch("connect", "You have selected File->Open menu.");
+        dispatcher.dispatch("menu", "file-open");
       }
     });
 

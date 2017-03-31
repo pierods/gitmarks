@@ -4,10 +4,14 @@ package com.github.pierods.gitmarks;
  * Created by piero on 3/21/17.
  */
 
+import com.github.pierods.gitmarks.commandhandlers.OpenHandler;
 import com.github.pierods.gitmarks.widgets.FolderTree;
 import com.github.pierods.gitmarks.widgets.GitmarksMenu;
 import com.github.pierods.gitmarks.widgets.GitmarksToolbar;
 import com.github.pierods.gitmarks.widgets.ItemList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import org.gnome.gdk.Event;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.AcceleratorGroup;
@@ -29,21 +33,38 @@ public class Gitmarks {
 
   private final Statusbar statusbar = new Statusbar();
 
+  public interface CommandHandler {
+
+    public String getCommand();
+    public void handleCommand(String source);
+  }
+
   public interface Dispatcher {
     public void dispatch(String source, String command);
+
   }
 
   class StatusBarDispatcher implements Dispatcher {
     @Override
     public void dispatch(String source, String command) {
-      System.out.println("Source: " + source + " - command: " + command);
+
+      CommandHandler handler = commandHandlers.get(command);
+
+      handler.handleCommand(source);
+
       statusbar.setMessage("Source: " + source + " - command: " + command);
+    }
+
+    private final Map<String, CommandHandler> commandHandlers = new HashMap<>();
+
+    public void addCommandHandler(CommandHandler ch) {
+      commandHandlers.put(ch.getCommand(), ch);
     }
   }
 
   public Gitmarks() {
 
-    final Dispatcher dispatcher = new StatusBarDispatcher();
+    final StatusBarDispatcher dispatcher = new StatusBarDispatcher();
     final Window window = new Window();
     final AcceleratorGroup acceleratorGroup;
 
@@ -67,6 +88,11 @@ public class Gitmarks {
     vBox.packEnd(statusbar, false, true, 0);
 
     window.setTitle("Gitmarks");
+    window.setHasResizeGrip(true);
+    window.setDefaultSize(1200, 600);
+
+    dispatcher.addCommandHandler(new OpenHandler(window));
+
     window.showAll();
 
     window.connect(new Window.DeleteEvent() {

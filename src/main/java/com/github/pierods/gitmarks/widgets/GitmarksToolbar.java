@@ -40,7 +40,7 @@ public class GitmarksToolbar {
     buttonOpen.connect(new ToolButton.Clicked() {
       @Override
       public void onClicked(ToolButton toolButton) {
-        dispatcher.dispatch("toolbar-open", "You have clicked the OPEN ToolButton");
+        dispatcher.dispatch("toolbar", "file-open");
       }
     });
          /*
