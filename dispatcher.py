@@ -14,8 +14,10 @@ class Dispatcher:
 
 class OpenFileHandler:
 
-  def __init__(self, parent):
+  def __init__(self, parent, status_bar):
     self.parent = parent
+    self.status_bar = status_bar
+    self.status_bar_context_id = status_bar.get_context_id("OpenFileHandlerContext")
 
   def command_name(self):
     return "open_file"
@@ -28,6 +30,7 @@ class OpenFileHandler:
     if response == Gtk.ResponseType.OK:
         print("Open clicked")
         print("File selected: " + dialog.get_filename())
+        self.status_bar.push(self.status_bar_context_id, dialog.get_filename())
     elif response == Gtk.ResponseType.CANCEL:
         print("Cancel clicked")
 
