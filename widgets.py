@@ -1,16 +1,24 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Gio
 
-class MyToolbar:
+import dispatcher
 
-  def make_toolbar(self):
-    self.toolbar = Gtk.Toolbar()
-    self.toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_PRIMARY_TOOLBAR)
-    self.new_button = Gtk.ToolButton.new_from_stock(Gtk.STOCK_NEW)
-    self.new_button.set_is_important(True)
-    self.toolbar.insert(self.new_button, 0)
-    self.new_button.show()
-    self.new_button.set_action_name("app.new")
+class MyHeaderBar:
 
-    return self.toolbar
+  def __init__(self, dispatcher:dispatcher.Dispatcher):
+    self.dispatcher = dispatcher
+
+  def make_headerbar(self, title):
+    self.headerbar = Gtk.HeaderBar()
+    self.headerbar.set_show_close_button(True)
+    self.headerbar.props.title = title
+
+    self.open_button = Gtk.Button().new_from_stock(Gtk.STOCK_OPEN)
+    self.headerbar.pack_start(self.open_button)
+
+    self.open_button.connect("clicked", self.open_msg_handler)
+    return self.headerbar
+
+  def open_msg_handler(self, widget):
+    self.dispatcher.dispatch("open_button", "open_file")
