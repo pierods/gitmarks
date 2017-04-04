@@ -2,6 +2,8 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio
 
+import bookmarks
+
 class Dispatcher:
 
   def __init__(self, handlers):
@@ -26,13 +28,16 @@ class OpenFileHandler:
     print(source, command)
     dialog = Gtk.FileChooserDialog("Please choose a file", self.parent, Gtk.FileChooserAction.OPEN, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
     #self.parent.add_filters(dialog)
+    json_file = None
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
-        print("Open clicked")
-        print("File selected: " + dialog.get_filename())
-        self.status_bar.push(self.status_bar_context_id, dialog.get_filename())
+        json_file = dialog.get_filename()
+        self.status_bar.push(self.status_bar_context_id, "Opening " + json_file)
     elif response == Gtk.ResponseType.CANCEL:
-        print("Cancel clicked")
-
+        self.status_bar.push(self.status_bar_context_id, "No file selected")
     dialog.destroy()
+
+    if not json_file == None:
+        root_bookmark = bookmarks.FirefoxImporter().import_firefox_json(json_file)
+
 
