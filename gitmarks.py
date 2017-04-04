@@ -5,25 +5,42 @@ from gi.repository import Gtk
 import dispatcher
 import widgets
 
-main_window = Gtk.Window(title="Gitmarks")
-status_bar = Gtk.Statusbar.new()
+class GMWindow(Gtk.Window):
 
-ofh = dispatcher.OpenFileHandler(main_window, status_bar)
-handlers = [ofh]
-dispatcher = dispatcher.Dispatcher(handlers)
+    def __init__(self):
 
-vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
-hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
+        Gtk.Window.__init__(self, title="Gitmarks")
+        self.status_bar = Gtk.Statusbar.new()
 
-main_window.add(vbox)
+        self.tree_view = None
 
-header_bar = widgets.HeaderBar(dispatcher).make_headerbar("Gitmarks")
-main_window.set_titlebar(header_bar)
+        gm_dispatcher = dispatcher.Dispatcher()
+        ofh = dispatcher.OpenFileHandler(self, self.status_bar, gm_dispatcher)
+        handlers = [ofh]
+        gm_dispatcher.load_handlers(handlers)
 
-tree_view = widgets.FolderTree().make_tree()
-hbox.pack_start(tree_view, True, True, 0)
-vbox.pack_start(hbox, True, False, 0)
-vbox.pack_end(status_bar, False, True, 0)
-main_window .connect("delete-event", Gtk.main_quit)
-main_window .show_all()
+        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
+        self.hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
+
+        self.add(self.vbox)
+
+        header_bar = widgets.HeaderBar(gm_dispatcher).make_headerbar("Gitmarks")
+        self.set_titlebar(header_bar)
+
+        self.vbox.pack_start(self.hbox, True, True, 0)
+        self.vbox.pack_end(self.status_bar, False, True, 0)
+
+    def draw_tree(self):
+        if not self.tree_view == None:
+            self.hbox.remove(self.tree_view)
+            self.tree_view.destroy()
+
+        self.tree_view = widgets.FolderTree().make_tree()
+        self.hbox.pack_start(self.tree_view, True, True, 0)
+        self.tree_view.show()
+
+
+win = GMWindow()
+win.connect("delete-event", Gtk.main_quit)
+win.show_all()
 Gtk.main()

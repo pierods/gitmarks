@@ -6,7 +6,7 @@ import bookmarks
 
 class Dispatcher:
 
-  def __init__(self, handlers):
+  def load_handlers(self, handlers):
     self.handler_map = dict()
     for handler in handlers:
       self.handler_map[handler.command_name()] = handler
@@ -16,9 +16,10 @@ class Dispatcher:
 
 class OpenFileHandler:
 
-  def __init__(self, parent, status_bar):
+  def __init__(self, parent, status_bar, gm_dispatcher:Dispatcher):
     self.parent = parent
     self.status_bar = status_bar
+    self.gm_dispatcher = gm_dispatcher
     self.status_bar_context_id = status_bar.get_context_id("OpenFileHandlerContext")
 
   def command_name(self):
@@ -39,5 +40,4 @@ class OpenFileHandler:
 
     if not json_file == None:
         root_bookmark = bookmarks.FirefoxImporter().import_firefox_json(json_file)
-
-
+        self.parent.draw_tree()
