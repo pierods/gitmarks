@@ -40,4 +40,4 @@ class OpenFileHandler:
 
     if not json_file == None:
         root_bookmark = bookmarks.FirefoxImporter().import_firefox_json(json_file)
-        self.parent.draw_tree()
+        self.parent.draw_tree(root_bookmark)

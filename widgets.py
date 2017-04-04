@@ -32,9 +32,9 @@ class FolderTree:
         self.icon = Gtk.IconTheme.get_default().load_icon("folder", 24, 0)
 
 
-    def make_tree(self):
+    def make_tree(self, root_bookmark):
 
-        self.populate_store()
+        self.populate_store(root_bookmark)
         self.tree_view.set_model(self.model)
 
         self.folder_name_renderer = Gtk.CellRendererText()
@@ -51,7 +51,7 @@ class FolderTree:
 
         return self.tree_view
 
-    def populate_store(self):
+    def populate_store(self, root_bookmark):
         # None = append to root
         last_added = self.model.append(None, ["Folder 1", self.icon])
         self.model.append(last_added, ["Folder One.One", self.icon])

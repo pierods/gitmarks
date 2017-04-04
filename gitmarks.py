@@ -30,12 +30,12 @@ class GMWindow(Gtk.Window):
         self.vbox.pack_start(self.hbox, True, True, 0)
         self.vbox.pack_end(self.status_bar, False, True, 0)
 
-    def draw_tree(self):
+    def draw_tree(self, root_bookmark):
         if not self.tree_view == None:
             self.hbox.remove(self.tree_view)
             self.tree_view.destroy()
 
-        self.tree_view = widgets.FolderTree().make_tree()
+        self.tree_view = widgets.FolderTree().make_tree(root_bookmark)
         self.hbox.pack_start(self.tree_view, True, True, 0)
         self.tree_view.show()
 
