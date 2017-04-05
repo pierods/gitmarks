@@ -55,12 +55,12 @@ class FolderTree:
         return self.tree_view
 
     def populate_store(self, root_bookmark:bookmarks.Bookmark):
-        # None = append to root
+        # None = append to root of treeview
         deq = deque([Node(root_bookmark, None)])
 
         while len(deq) > 0:
             node = deq.popleft()
-            print(node.bookmark.bookmark_type + "*" + node.bookmark.guid + "*" + node.bookmark.title)
+            #print(node.bookmark.bookmark_type + "*" + node.bookmark.guid + "*" + node.bookmark.title + "*", node.bookmark.uri)
             if node.bookmark.bookmark_type == "text/x-moz-place": # a bookmark
                 continue
             if node.bookmark.guid == "root________":
@@ -86,14 +86,15 @@ class ItemList:
         model = Gtk.TreeStore(str, str, GObject.TYPE_PYOBJECT)
 
         for child in parent.children:
-            model.append(child.title, child.uri, child)
+            print(child.uri)
+            model.append(None, [child.title, child.uri, child])
 
         tree_view.set_model(model)
         title_renderer = Gtk.CellRendererText()
         uri_renderer = Gtk.CellRendererText()
 
         title_column = Gtk.TreeViewColumn("Title", title_renderer, text=0)
-        uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=0)
+        uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=1)
 
         tree_view.append_column(title_column)
         tree_view.append_column(uri_column)
@@ -110,7 +111,7 @@ class ItemList:
         uri_renderer = Gtk.CellRendererText()
 
         title_column = Gtk.TreeViewColumn("Title", title_renderer, text=0)
-        uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=0)
+        uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=1)
 
         tree_view.append_column(title_column)
         tree_view.append_column(uri_column)
