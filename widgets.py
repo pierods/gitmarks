@@ -5,6 +5,8 @@ from gi.repository import Gtk, Gio, Gdk, GdkPixbuf
 import dispatcher
 import bookmarks
 
+from collections import  deque
+
 class HeaderBar:
 
   def __init__(self, gm_dispatcher:dispatcher.Dispatcher):
@@ -54,10 +56,23 @@ class FolderTree:
 
     def populate_store(self, root_bookmark:bookmarks.Bookmark):
         # None = append to root
-        #last_added = self.model.append(None, ["Folder 1", self.icon])
-        #self.model.append(last_added, ["Folder One.One", self.icon])
-        if root_bookmark.bookmark_type == "text/x-moz-place-container":
-            name = root_bookmark.guid
-        else:
-            name = root_bookmark.title
-        last_added = self.model.append(None, [name, self.icon])
+        deq = deque([Node(root_bookmark, None)])
+
+        while len(deq) > 0:
+            node = deq.popleft()
+
+            if node.bookmark.bookmark_type == "text/x-moz-place-container":
+                name = node.bookmark.guid
+            else:
+                name = node.bookmark.title
+
+            last_added = self.model.append(node.parent, [name, self.icon])
+            if node.bookmark.children != None:
+                for child in node.bookmark.children:
+                    deq.append(Node(child, last_added))
+
+
+class Node:
+    def __init__(self, bookmark, parent):
+            self.bookmark = bookmark
+            self.parent = parent
