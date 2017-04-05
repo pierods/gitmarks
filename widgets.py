@@ -60,14 +60,15 @@ class FolderTree:
 
         while len(deq) > 0:
             node = deq.popleft()
-
-            if node.bookmark.bookmark_type == "text/x-moz-place-container":
-                name = node.bookmark.guid
+            print(node.bookmark.bookmark_type + "*" + node.bookmark.guid + "*" + node.bookmark.title)
+            if node.bookmark.bookmark_type == "text/x-moz-place": # a bookmark
+                continue
+            if node.bookmark.guid == "root________":
+                name = "root"
             else:
                 name = node.bookmark.title
-
             last_added = self.model.append(node.parent, [name, self.icon])
-            if node.bookmark.children != None:
+            if node.bookmark.children is not None:
                 for child in node.bookmark.children:
                     deq.append(Node(child, last_added))
 
