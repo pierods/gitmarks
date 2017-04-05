@@ -125,4 +125,3 @@ class ItemList:
         tree_view.append_column(uri_column)
 
         return tree_view
-
