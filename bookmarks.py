@@ -5,11 +5,13 @@ from pprint import pprint
 
 class Bookmark:
 
-  def __init__(self, bookmark_type, guid, id, title, index, date_added, last_modified, uri, iconuri, children):
+  def __init__(self, bookmark_type, guid, id, tags, title, description, index, date_added, last_modified, uri, iconuri, children):
     self.bookmark_type = bookmark_type
     self.guid = guid
     self.id = id
+    self.tags = tags
     self.title = title
+    self.description = description
     self.index = index
     self.date_added = date_added
     self.last_modified = last_modified
@@ -19,9 +21,15 @@ class Bookmark:
 
 class FirefoxImporter:
 
+
     def object_decoder(self, obj):
-        if not 'type'in obj: # Places/SmartBookmark case; only works on firefox, but I'll leave it as an empty folder
-            return obj
+        if not 'type'in obj: # annos - store
+            self.annos = obj
+            return None
+        if 'annos' in obj and self.annos['name'] == "bookmarkProperties/description":
+            description = self.annos['value']
+        else:
+            description = None
         if not 'iconuri' in obj:
             iconuri = None
         else:
@@ -34,7 +42,12 @@ class FirefoxImporter:
             uri = None
         else:
             uri = obj['uri']
-        return Bookmark(obj['type'], obj['guid'], obj['id'], obj['title'], obj['index'], obj['dateAdded'], obj['lastModified'], uri, iconuri, children)
+        if 'tags' not in obj:
+                tags = None
+        else:
+            tags = obj['tags']
+
+        return Bookmark(obj['type'], obj['guid'], obj['id'], tags, obj['title'], description, obj['index'], obj['dateAdded'], obj['lastModified'], uri, iconuri, children)
 
 
     def import_firefox_json(self, json_file):

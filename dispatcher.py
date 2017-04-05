@@ -26,7 +26,6 @@ class OpenFileHandler:
     return "open_file"
 
   def handle(self, source, command):
-    print(source, command)
     dialog = Gtk.FileChooserDialog("Please choose a file", self.parent, Gtk.FileChooserAction.OPEN, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
     #self.parent.add_filters(dialog)
     json_file = None

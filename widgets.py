@@ -1,11 +1,11 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gio, Gdk, GdkPixbuf, GObject
+from gi.repository import Gtk, Gio, Gdk, GdkPixbuf, GObject, Pango
 
 import dispatcher
 import bookmarks
 
-from collections import  deque
+from collections import deque
 
 class HeaderBar:
 
@@ -83,21 +83,29 @@ class ItemList:
     def make_list(self, parent:bookmarks.Bookmark):
 
         tree_view = Gtk.TreeView()
-        model = Gtk.TreeStore(str, str, GObject.TYPE_PYOBJECT)
+        model = Gtk.TreeStore(str, str, str, str, GObject.TYPE_PYOBJECT)
 
-        for child in parent.children:
-            print(child.uri)
-            model.append(None, [child.title, child.uri, child])
+        if parent.children is not None:
+            for child in parent.children:
+                model.append(None, [child.title, child.uri, child.description, child.tags, child])
 
         tree_view.set_model(model)
+
         title_renderer = Gtk.CellRendererText()
         uri_renderer = Gtk.CellRendererText()
+        description_renderer = Gtk.CellRendererText()
+        description_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
+        tags_renderer = Gtk.CellRendererText()
 
         title_column = Gtk.TreeViewColumn("Title", title_renderer, text=0)
         uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=1)
+        description_column = Gtk.TreeViewColumn("Description", description_renderer, text = 2)
+        tags_column = Gtk.TreeViewColumn("Tags", tags_renderer, text = 3)
 
         tree_view.append_column(title_column)
         tree_view.append_column(uri_column)
+        tree_view.append_column(description_column)
+        tree_view.append_column(tags_column)
 
         return tree_view
     

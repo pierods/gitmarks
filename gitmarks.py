@@ -57,19 +57,14 @@ class GMWindow(Gtk.Window):
     def on_tree_selection_changed(self, selection):
         model, treeiter = selection.get_selected()
         if treeiter is not None:
-            print("You selected ", model[treeiter][0])
+            folder = model[treeiter][2]
+            if self.item_list is not None:
+                self.hbox.remove(self.item_list)
+                self.item_list.destroy()
 
-        folder = model[treeiter][2]
-
-        print(folder.title)
-
-        if self.item_list is not None:
-            self.hbox.remove(self.item_list)
-            self.item_list.destroy()
-
-        self.item_list = widgets.ItemList().make_list(folder)
-        self.hbox.pack_start(self.item_list, True, True, 0)
-        self.item_list.show()
+            self.item_list = widgets.ItemList().make_list(folder)
+            self.hbox.pack_start(self.item_list, True, True, 0)
+            self.item_list.show()
 
 
 win = GMWindow()
