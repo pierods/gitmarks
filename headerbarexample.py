@@ -18,7 +18,7 @@ class HeaderBarWindow(Gtk.Window):
         icon = Gio.ThemedIcon(name="mail-send-receive-symbolic")
         image = Gtk.Image.new_from_gicon(icon, Gtk.IconSize.BUTTON)
         button.add(image)
-         hb.pack_end(button)
+        hb.pack_end(button)
 
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         Gtk.StyleContext.add_class(box.get_style_context(), "linked")

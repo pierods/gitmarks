@@ -3,6 +3,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio, Gdk, GdkPixbuf
 
 import dispatcher
+import bookmarks
 
 class HeaderBar:
 
@@ -32,7 +33,7 @@ class FolderTree:
         self.icon = Gtk.IconTheme.get_default().load_icon("folder", 24, 0)
 
 
-    def make_tree(self, root_bookmark):
+    def make_tree(self, root_bookmark:bookmarks.Bookmark):
 
         self.populate_store(root_bookmark)
         self.tree_view.set_model(self.model)
@@ -51,7 +52,12 @@ class FolderTree:
 
         return self.tree_view
 
-    def populate_store(self, root_bookmark):
+    def populate_store(self, root_bookmark:bookmarks.Bookmark):
         # None = append to root
-        last_added = self.model.append(None, ["Folder 1", self.icon])
-        self.model.append(last_added, ["Folder One.One", self.icon])
+        #last_added = self.model.append(None, ["Folder 1", self.icon])
+        #self.model.append(last_added, ["Folder One.One", self.icon])
+        if root_bookmark.bookmark_type == "text/x-moz-place-container":
+            name = root_bookmark.guid
+        else:
+            name = root_bookmark.title
+        last_added = self.model.append(None, [name, self.icon])

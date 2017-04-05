@@ -39,5 +39,6 @@ class FirefoxImporter:
 
     def import_firefox_json(self, json_file):
         json_data = open(json_file)
-        self.bookmark_root = json.load(json_data, object_hook=self.object_decoder)
+        bookmark_root = json.load(json_data, object_hook=self.object_decoder)
         json_data.close()
+        return bookmark_root

@@ -4,12 +4,16 @@ from gi.repository import Gtk
 
 import dispatcher
 import widgets
+import bookmarks
 
 class GMWindow(Gtk.Window):
 
     def __init__(self):
 
         Gtk.Window.__init__(self, title="Gitmarks")
+        self.props.window_position = Gtk.WindowPosition.CENTER
+        self.props.default_width = 400
+        self.props.default_height = 400
         self.status_bar = Gtk.Statusbar.new()
 
         self.tree_view = None
@@ -30,7 +34,7 @@ class GMWindow(Gtk.Window):
         self.vbox.pack_start(self.hbox, True, True, 0)
         self.vbox.pack_end(self.status_bar, False, True, 0)
 
-    def draw_tree(self, root_bookmark):
+    def draw_tree(self, root_bookmark:bookmarks.Bookmark):
         if not self.tree_view == None:
             self.hbox.remove(self.tree_view)
             self.tree_view.destroy()
