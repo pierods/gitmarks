@@ -1,6 +1,6 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gio, Gdk, GdkPixbuf
+from gi.repository import Gtk, Gio, Gdk, GdkPixbuf, GObject
 
 import dispatcher
 import bookmarks
@@ -31,7 +31,7 @@ class FolderTree:
 
     def __init__(self):
         self.tree_view = Gtk.TreeView()
-        self.model = Gtk.TreeStore(str, GdkPixbuf.Pixbuf)
+        self.model = Gtk.TreeStore(str, GdkPixbuf.Pixbuf, GObject.TYPE_PYOBJECT)
         self.icon = Gtk.IconTheme.get_default().load_icon("folder", 24, 0)
 
 
@@ -67,7 +67,7 @@ class FolderTree:
                 name = "root"
             else:
                 name = node.bookmark.title
-            last_added = self.model.append(node.parent, [name, self.icon])
+            last_added = self.model.append(node.parent, [name, self.icon, node.bookmark])
             if node.bookmark.children is not None:
                 for child in node.bookmark.children:
                     deq.append(Node(child, last_added))
@@ -77,3 +77,43 @@ class Node:
     def __init__(self, bookmark, parent):
             self.bookmark = bookmark
             self.parent = parent
+
+class ItemList:
+
+    def make_list(self, parent:bookmarks.Bookmark):
+
+        tree_view = Gtk.TreeView()
+        model = Gtk.TreeStore(str, str, GObject.TYPE_PYOBJECT)
+
+        for child in parent.children:
+            model.append(child.title, child.uri, child)
+
+        tree_view.set_model(model)
+        title_renderer = Gtk.CellRendererText()
+        uri_renderer = Gtk.CellRendererText()
+
+        title_column = Gtk.TreeViewColumn("Title", title_renderer, text=0)
+        uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=0)
+
+        tree_view.append_column(title_column)
+        tree_view.append_column(uri_column)
+
+        return tree_view
+    
+    def make_empty_list(self):
+
+        tree_view = Gtk.TreeView()
+        model = Gtk.TreeStore(str, str, GObject.TYPE_PYOBJECT)
+
+        tree_view.set_model(model)
+        title_renderer = Gtk.CellRendererText()
+        uri_renderer = Gtk.CellRendererText()
+
+        title_column = Gtk.TreeViewColumn("Title", title_renderer, text=0)
+        uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=0)
+
+        tree_view.append_column(title_column)
+        tree_view.append_column(uri_column)
+
+        return tree_view
+

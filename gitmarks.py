@@ -17,6 +17,7 @@ class GMWindow(Gtk.Window):
         self.status_bar = Gtk.Statusbar.new()
 
         self.tree_view = None
+        self.item_list = None
 
         gm_dispatcher = dispatcher.Dispatcher()
         ofh = dispatcher.OpenFileHandler(self, self.status_bar, gm_dispatcher)
@@ -35,13 +36,22 @@ class GMWindow(Gtk.Window):
         self.vbox.pack_end(self.status_bar, False, True, 0)
 
     def draw_tree(self, root_bookmark:bookmarks.Bookmark):
-        if not self.tree_view == None:
+        if self.tree_view is not None:
             self.hbox.remove(self.tree_view)
             self.tree_view.destroy()
+
+        if self.item_list is not None:
+            self.hbox.remove(self.item_list)
+            self.item_list.destroy()
 
         self.tree_view = widgets.FolderTree().make_tree(root_bookmark)
         self.hbox.pack_start(self.tree_view, True, True, 0)
         self.tree_view.show()
+
+        self.item_list = widgets.ItemList().make_empty_list()
+        self.hbox.pack_start(self.item_list, True, True, 0)
+        self.item_list.show()
+
 
 
 win = GMWindow()
