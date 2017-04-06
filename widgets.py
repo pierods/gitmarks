@@ -84,12 +84,21 @@ class ItemList:
 
     def make_list(self, parent:bookmarks.Bookmark):
 
-        tree_view = Gtk.TreeView()
-        model = Gtk.TreeStore(str, str, str, str, GObject.TYPE_PYOBJECT)
+        folder_icon = Gtk.IconTheme.get_default().load_icon("folder", 24, 0)
+        folder_icon_renderer = Gtk.CellRendererPixbuf()
+        iconuri_renderer = Gtk.CellRendererPixbuf()
 
-        if parent.children is not None:
+        tree_view = Gtk.TreeView()
+        model = Gtk.ListStore(str, str, str, str, GdkPixbuf.Pixbuf, GObject.TYPE_PYOBJECT)
+
+        if parent.children is not None: # empty folder
             for child in parent.children:
-                model.append(None, [child.title, child.uri, child.description, child.tags, child])
+                if child.bookmark_type == "text/x-moz-place-container":
+                    icon = folder_icon
+                else:
+                    icon = None
+
+                model.append([child.title, child.uri, child.description, child.tags, icon, child])
 
         tree_view.set_model(model)
 
@@ -101,7 +110,11 @@ class ItemList:
         description_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         tags_renderer = Gtk.CellRendererText()
 
-        title_column = Gtk.TreeViewColumn("Title", title_renderer, text=0)
+        title_column = Gtk.TreeViewColumn("Title")
+        title_column.pack_start(folder_icon_renderer, False)
+        title_column.pack_start(title_renderer, True)
+        title_column.add_attribute(folder_icon_renderer, "pixbuf", 4)
+        title_column.add_attribute(title_renderer, "text", 0)
         title_column.set_min_width(100)
         title_column.set_resizable(True)
         title_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)

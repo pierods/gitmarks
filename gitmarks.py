@@ -10,12 +10,14 @@ class GMWindow(Gtk.Window):
 
     def __init__(self):
 
-        Gtk.Window.__init__(self, title="Gitmarks")
-        self.props.window_position = Gtk.WindowPosition.CENTER
-        self.props.default_width = 400
-        self.props.default_height = 400
-        self.status_bar = Gtk.Statusbar.new()
+        h = Gdk.Screen().height()
+        w = Gdk.Screen.width()
 
+        Gtk.Window.__init__(self, title="Gitmarks")
+        self.props.resizable = True
+        self.props.default_width = w/5
+        self.props.default_height = h
+        self.status_bar = Gtk.Statusbar.new()
         self.tree_view = None
         self.item_list = None
 
