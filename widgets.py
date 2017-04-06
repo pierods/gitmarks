@@ -94,15 +94,29 @@ class ItemList:
         tree_view.set_model(model)
 
         title_renderer = Gtk.CellRendererText()
+        title_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         uri_renderer = Gtk.CellRendererText()
+        uri_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         description_renderer = Gtk.CellRendererText()
         description_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         tags_renderer = Gtk.CellRendererText()
 
         title_column = Gtk.TreeViewColumn("Title", title_renderer, text=0)
+        title_column.set_min_width(100)
+        title_column.set_resizable(True)
+        title_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+
         uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=1)
+        uri_column.set_resizable(True)
+        uri_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+
         description_column = Gtk.TreeViewColumn("Description", description_renderer, text = 2)
+        description_column.set_resizable(True)
+        description_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+
         tags_column = Gtk.TreeViewColumn("Tags", tags_renderer, text = 3)
+        tags_column.set_resizable(True)
+        tags_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         tree_view.append_column(title_column)
         tree_view.append_column(uri_column)

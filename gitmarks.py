@@ -25,7 +25,7 @@ class GMWindow(Gtk.Window):
         gm_dispatcher.load_handlers(handlers)
 
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
-        self.hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
+        self.hbox = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
 
         self.add(self.vbox)
 
@@ -45,13 +45,13 @@ class GMWindow(Gtk.Window):
             self.item_list.destroy()
 
         self.tree_view = widgets.FolderTree().make_tree(root_bookmark)
-        self.hbox.pack_start(self.tree_view, True, True, 0)
+        self.hbox.pack1(self.tree_view, True, True)
         select_event = self.tree_view.get_selection()
         select_event.connect("changed", self.on_tree_selection_changed)
         self.tree_view.show()
 
         self.item_list = widgets.ItemList().make_empty_list()
-        self.hbox.pack_start(self.item_list, True, True, 0)
+        self.hbox.pack2(self.item_list, True, True)
         self.item_list.show()
 
         target = Gtk.TargetEntry().new("folder-tree", Gtk.TargetFlags.SAME_WIDGET, 0)
@@ -69,7 +69,7 @@ class GMWindow(Gtk.Window):
                 self.item_list.destroy()
 
             self.item_list = widgets.ItemList().make_list(folder)
-            self.hbox.pack_start(self.item_list, True, True, 0)
+            self.hbox.pack2(self.item_list, True, True)
             self.item_list.show()
 
     def on_drag_and_drop(self, widget, drag_context, x, y, data, info, time):
