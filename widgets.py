@@ -29,8 +29,27 @@ class HeaderBar:
 
 class FolderTree:
 
+    def on_drag_and_drop_received(self, widget, drag_context, x, y, data:Gtk.SelectionData, info, time):
+        tp, pos = self.tree_view.get_dest_row_at_pos(x, y)
+        tree_path, drop_position = self.tree_view.get_drag_dest_row()
+        print(tp, "*", pos,"*",  tree_path,"*",  drop_position)
+
+    def on_drag_and_drop_get(self, widget, context, data:Gtk.SelectionData, info, time):
+        model, treeiter = self.tree_view.get_selection().get_selected()
+        if treeiter is not None:
+            self.dnd_source = model[treeiter][2]
+
     def __init__(self):
         self.tree_view = Gtk.TreeView()
+
+        target_reorder = Gtk.TargetEntry().new("gitmarks-treeview", Gtk.TargetFlags.SAME_WIDGET, 132)
+        target_dnd = Gtk.TargetEntry().new("firefox", Gtk.TargetFlags.OTHER_APP, 291)
+
+        self.tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, [target_reorder], Gdk.DragAction.COPY)
+        self.tree_view.enable_model_drag_dest([target_reorder], Gdk.DragAction.COPY)
+        self.tree_view.connect("drag-data-received", self.on_drag_and_drop_received)
+        self.tree_view.connect("drag-data-get", self.on_drag_and_drop_get)
+
         self.model = Gtk.TreeStore(str, GdkPixbuf.Pixbuf, GObject.TYPE_PYOBJECT)
         self.icon = Gtk.IconTheme.get_default().load_icon("folder", 24, 0)
 
@@ -116,20 +135,20 @@ class ItemList:
         title_column.add_attribute(folder_icon_renderer, "pixbuf", 4)
         title_column.add_attribute(title_renderer, "text", 0)
         title_column.set_min_width(100)
-        title_column.set_resizable(True)
-        title_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        #title_column.set_resizable(True)
+        #title_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=1)
         uri_column.set_resizable(True)
-        uri_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        #uri_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         description_column = Gtk.TreeViewColumn("Description", description_renderer, text = 2)
         description_column.set_resizable(True)
-        description_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        #description_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         tags_column = Gtk.TreeViewColumn("Tags", tags_renderer, text = 3)
         tags_column.set_resizable(True)
-        tags_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        #tags_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         tree_view.append_column(title_column)
         tree_view.append_column(uri_column)

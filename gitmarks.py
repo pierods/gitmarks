@@ -36,6 +36,8 @@ class GMWindow(Gtk.Window):
 
         self.vbox.pack_start(self.hbox, True, True, 0)
         self.vbox.pack_end(self.status_bar, False, True, 0)
+        self.connect("delete-event", Gtk.main_quit)
+        self.connect("window-state-event", self.on_resize)
 
     def draw_tree(self, root_bookmark:bookmarks.Bookmark):
         if self.tree_view is not None:
@@ -56,12 +58,6 @@ class GMWindow(Gtk.Window):
         self.hbox.pack2(self.item_list, True, True)
         self.item_list.show()
 
-        target = Gtk.TargetEntry().new("folder-tree", Gtk.TargetFlags.SAME_WIDGET, 0)
-
-        self.tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, [target], Gdk.DragAction.MOVE)
-        self.tree_view.enable_model_drag_dest([target], Gdk.DragAction.MOVE)
-        self.tree_view.connect("drag-data-received", self.on_drag_and_drop)
-
     def on_tree_selection_changed(self, selection):
         model, treeiter = selection.get_selected()
         if treeiter is not None:
@@ -74,10 +70,10 @@ class GMWindow(Gtk.Window):
             self.hbox.pack2(self.item_list, True, True)
             self.item_list.show()
 
-    def on_drag_and_drop(self, widget, drag_context, x, y, data, info, time):
-        print(widget)
+    def on_resize(self, widget, event):
+        if self.item_list is not None:
+            self.item_list.columns_autosize()
 
 win = GMWindow()
-win.connect("delete-event", Gtk.main_quit)
 win.show_all()
 Gtk.main()
