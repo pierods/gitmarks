@@ -59,7 +59,7 @@ class GMWindow(Gtk.Window):
         self.tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, [target], Gdk.DragAction.MOVE)
         self.tree_view.enable_model_drag_dest([target], Gdk.DragAction.MOVE)
         self.tree_view.connect("drag-data-received", self.on_drag_and_drop)
-        
+
     def on_tree_selection_changed(self, selection):
         model, treeiter = selection.get_selected()
         if treeiter is not None:

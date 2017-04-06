@@ -63,6 +63,8 @@ class FolderTree:
             #print(node.bookmark.bookmark_type + "*" + node.bookmark.guid + "*" + node.bookmark.title + "*", node.bookmark.uri)
             if node.bookmark.bookmark_type == "text/x-moz-place": # a bookmark
                 continue
+            if node.bookmark.bookmark_type == "text/x-moz-place-separator":
+                continue
             if node.bookmark.guid == "root________":
                 name = "root"
             else:

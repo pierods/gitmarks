@@ -46,8 +46,12 @@ class FirefoxImporter:
                 tags = None
         else:
             tags = obj['tags']
+        if obj['type'] == "text/x-moz-place-separator":
+            title = "--------------------------------------------------------"
+        else:
+            title = obj['title']
 
-        return Bookmark(obj['type'], obj['guid'], obj['id'], tags, obj['title'], description, obj['index'], obj['dateAdded'], obj['lastModified'], uri, iconuri, children)
+        return Bookmark(obj['type'], obj['guid'], obj['id'], tags, title, description, obj['index'], obj['dateAdded'], obj['lastModified'], uri, iconuri, children)
 
 
     def import_firefox_json(self, json_file):
