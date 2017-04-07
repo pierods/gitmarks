@@ -7,6 +7,8 @@ import widgets
 import bookmarks
 import settings
 
+import sys
+
 class GMWindow(Gtk.Window):
 
     def __init__(self):
@@ -40,7 +42,10 @@ class GMWindow(Gtk.Window):
         self.connect("delete-event", Gtk.main_quit)
         self.connect("window-state-event", self.on_resize)
 
-        self.init_settings()
+        if self.init_settings() is None:
+            sys.exit(0)
+
+
 
     def draw_tree(self, root_bookmark:bookmarks.Bookmark):
         if self.tree_view is not None:
@@ -93,8 +98,9 @@ class GMWindow(Gtk.Window):
             dialog.destroy()
 
             if response == Gtk.ResponseType.CANCEL:
-                print("quit")
-                Gtk.main_quit()
+                return None
+            else:
+                return ""
 
 
 
