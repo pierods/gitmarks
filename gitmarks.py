@@ -1,10 +1,11 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, Gio
+from gi.repository import Gtk, Gdk, GLib
 
 import dispatcher
 import widgets
 import bookmarks
+import settings
 
 class GMWindow(Gtk.Window):
 
@@ -15,7 +16,7 @@ class GMWindow(Gtk.Window):
 
         Gtk.Window.__init__(self, title="Gitmarks")
         self.props.resizable = True
-        self.props.default_width = w/5
+        self.props.default_width = w/3
         self.props.default_height = h
         self.status_bar = Gtk.Statusbar.new()
         self.tree_view = None
@@ -38,6 +39,8 @@ class GMWindow(Gtk.Window):
         self.vbox.pack_end(self.status_bar, False, True, 0)
         self.connect("delete-event", Gtk.main_quit)
         self.connect("window-state-event", self.on_resize)
+
+        self.init_settings()
 
     def draw_tree(self, root_bookmark:bookmarks.Bookmark):
         if self.tree_view is not None:
@@ -73,6 +76,27 @@ class GMWindow(Gtk.Window):
     def on_resize(self, widget, event):
         if self.item_list is not None:
             self.item_list.columns_autosize()
+
+    def init_settings(self):
+        gsettings = settings.GSettings().create_settings(GLib.get_current_dir())
+
+        profiles_key = gsettings.get_string("profiles")
+        if profiles_key == "":
+            print("enter profile")
+            dialog = Gtk.Dialog("Enter a new profile name", self, 0, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK))
+            dialog.set_modal(True)
+            dialog.set_default_size(350, 100)
+            label = Gtk.Label.new("Enter a profile name")
+            content_area = dialog.get_content_area()
+            content_area.add(label)
+            response = dialog.run()
+            dialog.destroy()
+
+            if response == Gtk.ResponseType.CANCEL:
+                print("quit")
+                Gtk.main_quit()
+
+
 
 win = GMWindow()
 win.show_all()

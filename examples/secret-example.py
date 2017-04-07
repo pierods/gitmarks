@@ -5,25 +5,28 @@ gi.require_version('Secret', '1')
 from gi.repository import Gtk, Gdk, Secret
 
 
-import time
 
-class GitCredentials:
-    def __init__(self, uname, pw):
-        self.uname = uname
-        self.pw = pw
+schema_git_username = Secret.Schema.new("com.github.pierods.gitmarks.git.username", Secret.SchemaFlags.NONE, {})
+schema_git_password = Secret.Schema.new("com.github.pierods.gitmarks.git.password", Secret.SchemaFlags.NONE, {})
 
-credentials = GitCredentials("pinco", "pallino")
-
-
-
-def callback(source_object, res, user_data):
-    print("fatto")
+def store_git_credentials(secret_service:Secret.Service):
+    secret_service.store_sync(schema_git_username, {}, "default", "git_username", Secret.Value.new("pinco", len("pinco"), "string"), None)
+    secret_service.store_sync(schema_git_password, {}, "default", "git_password", Secret.Value.new("pallino", len("pallino"), "string"), None)
+    print("secret stored")
 
 
-schema = Secret.Schema.new("com.github.pierods.gitcredentials", Secret.SchemaFlags.NONE, {})
-#secret_service = Secret.Service.get(Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS, None, callback, None)
+
+def get_callback(source_object, res, user_data):
+    secret_service = Secret.Service.get_finish(res)
+    print("gotten secret service")
+    #store_git_credentials(secret_service)
+
+    username = secret_service.lookup_sync(schema_git_username, {}, None)
+    print(username.get(), username.get_text(), username.get_content_type())
 
 
-secret_service = Secret.Service.get_sync(Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS, None)
-collections = secret_service.get_collections()
-print(collections)
+
+Secret.Service.get(Secret.ServiceFlags.OPEN_SESSION | Secret.ServiceFlags.LOAD_COLLECTIONS, None, get_callback, None)
+
+
+Gtk.main()

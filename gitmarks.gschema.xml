@@ -1,6 +1,11 @@
 <schemalist>
 
     <schema id="com.github.pierods.gitmarks" path="/org/github/pierods/gitmarks/">
-
+        <key name="profiles" type="s">
+            <default>''</default>
+        </key>
+        <key name="default-profile" type="s">
+            <default>''</default>
+        </key>
     </schema>
 </schemalist>
