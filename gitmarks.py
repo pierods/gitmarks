@@ -42,6 +42,8 @@ class GMWindow(Gtk.Window):
         self.connect("delete-event", Gtk.main_quit)
         self.connect("window-state-event", self.on_resize)
 
+        self.gio_settings = settings.GioSettings().create_settings(GLib.get_current_dir())
+
         if self.init_settings() is None:
             sys.exit(0)
 
@@ -83,26 +85,30 @@ class GMWindow(Gtk.Window):
             self.item_list.columns_autosize()
 
     def init_settings(self):
-        gsettings = settings.GSettings().create_settings(GLib.get_current_dir())
 
-        profiles_key = gsettings.get_string("profiles")
-        if profiles_key == "":
-            print("enter profile")
-            dialog = Gtk.Dialog("Enter a new profile name", self, 0, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK))
+        default_profile = self.gio_settings.get_string("default-profile")
+        if default_profile == "":
+            dialog = Gtk.Dialog("No profile found", self, 0, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK))
             dialog.set_modal(True)
             dialog.set_default_size(350, 100)
-            label = Gtk.Label.new("Enter a profile name")
+            label = Gtk.Label.new("Enter a new profile name")
+            entry = Gtk.Entry()
             content_area = dialog.get_content_area()
             content_area.add(label)
+            content_area.add(entry)
+            dialog.show_all()
             response = dialog.run()
+            entered_text = entry.get_text()
             dialog.destroy()
 
             if response == Gtk.ResponseType.CANCEL:
                 return None
             else:
-                return ""
-
-
+                self.gio_settings.set_string("profiles", "\"" + entered_text + "\"")
+                self.gio_settings.set_string("default-profile", "\"" + entered_text + "\"")
+                return entered_text
+        else:
+            return default_profile
 
 win = GMWindow()
 win.show_all()

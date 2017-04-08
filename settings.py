@@ -2,7 +2,7 @@ import gi, os
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gio, GLib
 
-class GSettings:
+class GioSettings:
     def create_settings(self, path:str):
         if not os.path.isfile(path + "/gschemas.compiled"):
             raise FileNotFoundError
@@ -13,7 +13,3 @@ class GSettings:
 
         return gitmarks_settings
 
-
-settings = GSettings().create_settings("/home/piero/code/gitmarks")
-
-print(GLib.get_current_dir())
