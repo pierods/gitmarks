@@ -42,7 +42,7 @@ class GMWindow(Gtk.Window):
         self.connect("delete-event", Gtk.main_quit)
         self.connect("window-state-event", self.on_resize)
 
-        self.gio_settings = settings.GioSettings().create_settings(GLib.get_current_dir())
+        self.gio_settings = settings.GitmarksSettings().create_gio_settings(GLib.get_current_dir())
 
         if self.init_settings() is None:
             sys.exit(0)

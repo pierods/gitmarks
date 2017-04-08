@@ -2,22 +2,16 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio, GLib
 
-import os
+import settings
+import  subprocess
 
+repo_dir = settings.GitmarksSettings().get_repo_dir()
 
+git_status = "cd " + repo_dir + ";" + "git status"
 
-dir = GLib.get_user_data_dir()
-print(dir)
+#git_status = "echo a; echo b"
 
+process = subprocess.Popen(git_status, stdout=subprocess.PIPE, shell=True)
+output = process.communicate()[0].strip()
 
-gm_dir = dir + "/gitmarks"
-
-if not os.path.isdir(gm_dir):
-    os.makedirs(dir + "/gitmarks")
-
-if not os.path.isdir(gm_dir + "/profiles"):
-    os.makedirs(gm_dir + "/profiles")
-
-
-
-
+print(output)
