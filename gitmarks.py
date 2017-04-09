@@ -6,7 +6,8 @@ import dispatcher
 import widgets
 import bookmarks
 import settings
-
+import git
+import json
 import sys
 
 class GMWindow(Gtk.Window):
@@ -34,7 +35,9 @@ class GMWindow(Gtk.Window):
 
         self.add(self.vbox)
 
-        header_bar = widgets.HeaderBar(gm_dispatcher).make_headerbar("Gitmarks")
+        hb_factory = widgets.HeaderBar(gm_dispatcher)
+        header_bar = hb_factory.make_headerbar("Gitmarks")
+        self.profile_label = hb_factory.get_profile_label()
         self.set_titlebar(header_bar)
 
         self.vbox.pack_start(self.hbox, True, True, 0)
@@ -109,11 +112,20 @@ class GMWindow(Gtk.Window):
             if response == Gtk.ResponseType.CANCEL:
                 return None
             else:
-                self.gio_settings.set_string("profiles", "\"" + entered_text + "\"")
-                self.gio_settings.set_string("default-profile", "\"" + entered_text + "\"")
-                return entered_text
+                default_profile = entered_text
+                json_profile = json.dump(default_profile)
+                self.gio_settings.set_string("profiles", json_profile)
+                self.gio_settings.set_string("default-profile", json_profile)
+                self.profile_label.set_text(entered_text)
         else:
-            return default_profile
+            default_profile = json.loads(default_profile)
+            self.profile_label.set_text(default_profile)
+
+        repo_dir = settings.GitmarksSettings().get_repo_dir()
+        self.git = git.Git(repo_dir)
+        if not self.git.hasprofile(default_profile):
+            self.git.create_profile(default_profile)
+        return default_profile
 
 win = GMWindow()
 win.show_all()

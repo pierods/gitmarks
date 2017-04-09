@@ -38,7 +38,6 @@ class GitmarksSettings:
 
         if not os.path.isdir(repo_dir):
             os.makedirs(repo_dir)
-        print(repo_dir)
         return repo_dir
 
 

@@ -1,4 +1,5 @@
 import gi
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio, Gdk, GdkPixbuf, GObject, Pango
 
@@ -8,33 +9,38 @@ import bookmarks
 from collections import deque
 
 class HeaderBar:
+    def __init__(self, gm_dispatcher: dispatcher.Dispatcher):
+        self.gm_dispatcher = gm_dispatcher
 
-  def __init__(self, gm_dispatcher:dispatcher.Dispatcher):
-    self.gm_dispatcher = gm_dispatcher
+    def make_headerbar(self, title):
+        self.headerbar = Gtk.HeaderBar()
+        self.headerbar.set_show_close_button(True)
+        self.headerbar.props.title = title
 
-  def make_headerbar(self, title):
-    self.headerbar = Gtk.HeaderBar()
-    self.headerbar.set_show_close_button(True)
-    self.headerbar.props.title = title
+        self.open_button = Gtk.Button().new_from_stock(Gtk.STOCK_OPEN)
+        self.headerbar.pack_start(self.open_button)
 
-    self.open_button = Gtk.Button().new_from_stock(Gtk.STOCK_OPEN)
-    self.headerbar.pack_start(self.open_button)
+        self.open_button.connect("clicked", self.open_msg_handler)
 
-    self.open_button.connect("clicked", self.open_msg_handler)
-    return self.headerbar
+        self.profile_name = Gtk.Label()
+        self.headerbar.pack_end(self.profile_name)
 
-  def open_msg_handler(self, widget):
-    self.gm_dispatcher.dispatch("open_button", "open_file")
+        return self.headerbar
+
+    def open_msg_handler(self, widget):
+        self.gm_dispatcher.dispatch("open_button", "open_file")
+
+    def get_profile_label(self):
+        return self.profile_name
 
 
 class FolderTree:
-
-    def on_drag_and_drop_received(self, widget, drag_context, x, y, data:Gtk.SelectionData, info, time):
+    def on_drag_and_drop_received(self, widget, drag_context, x, y, data: Gtk.SelectionData, info, time):
         tp, pos = self.tree_view.get_dest_row_at_pos(x, y)
         tree_path, drop_position = self.tree_view.get_drag_dest_row()
-        print(tp, "*", pos,"*",  tree_path,"*",  drop_position)
+        print(tp, "*", pos, "*", tree_path, "*", drop_position)
 
-    def on_drag_and_drop_get(self, widget, context, data:Gtk.SelectionData, info, time):
+    def on_drag_and_drop_get(self, widget, context, data: Gtk.SelectionData, info, time):
         model, treeiter = self.tree_view.get_selection().get_selected()
         if treeiter is not None:
             self.dnd_source = model[treeiter][2]
@@ -53,8 +59,7 @@ class FolderTree:
         self.model = Gtk.TreeStore(str, GdkPixbuf.Pixbuf, GObject.TYPE_PYOBJECT)
         self.icon = Gtk.IconTheme.get_default().load_icon("folder", 24, 0)
 
-
-    def make_tree(self, root_bookmark:bookmarks.Bookmark):
+    def make_tree(self, root_bookmark: bookmarks.Bookmark):
 
         self.populate_store(root_bookmark)
         self.tree_view.set_model(self.model)
@@ -73,14 +78,14 @@ class FolderTree:
 
         return self.tree_view
 
-    def populate_store(self, root_bookmark:bookmarks.Bookmark):
+    def populate_store(self, root_bookmark: bookmarks.Bookmark):
         # None = append to root of treeview
         deq = deque([Node(root_bookmark, None)])
 
         while len(deq) > 0:
             node = deq.popleft()
-            #print(node.bookmark.bookmark_type + "*" + node.bookmark.guid + "*" + node.bookmark.title + "*", node.bookmark.uri)
-            if node.bookmark.bookmark_type == "text/x-moz-place": # a bookmark
+            # print(node.bookmark.bookmark_type + "*" + node.bookmark.guid + "*" + node.bookmark.title + "*", node.bookmark.uri)
+            if node.bookmark.bookmark_type == "text/x-moz-place":  # a bookmark
                 continue
             if node.bookmark.bookmark_type == "text/x-moz-place-separator":
                 continue
@@ -96,12 +101,12 @@ class FolderTree:
 
 class Node:
     def __init__(self, bookmark, parent):
-            self.bookmark = bookmark
-            self.parent = parent
+        self.bookmark = bookmark
+        self.parent = parent
+
 
 class ItemList:
-
-    def make_list(self, parent:bookmarks.Bookmark):
+    def make_list(self, parent: bookmarks.Bookmark):
 
         folder_icon = Gtk.IconTheme.get_default().load_icon("folder", 24, 0)
         folder_icon_renderer = Gtk.CellRendererPixbuf()
@@ -110,7 +115,7 @@ class ItemList:
         list_view = Gtk.TreeView()
         model = Gtk.ListStore(str, str, str, str, GdkPixbuf.Pixbuf, GObject.TYPE_PYOBJECT)
 
-        if parent.children is not None: # empty folder
+        if parent.children is not None:  # empty folder
             for child in parent.children:
                 if child.bookmark_type == "text/x-moz-place-container":
                     icon = folder_icon
@@ -122,11 +127,11 @@ class ItemList:
         list_view.set_model(model)
 
         title_renderer = Gtk.CellRendererText()
-        #title_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
+        # title_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         uri_renderer = Gtk.CellRendererText()
         uri_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         description_renderer = Gtk.CellRendererText()
-        #description_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
+        # description_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         tags_renderer = Gtk.CellRendererText()
 
         title_column = Gtk.TreeViewColumn("Title")
@@ -136,20 +141,20 @@ class ItemList:
         title_column.add_attribute(title_renderer, "text", 0)
         title_column.set_min_width(100)
         title_column.set_resizable(True)
-        #title_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        # title_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=1)
         uri_column.set_resizable(True)
         uri_column.set_min_width(100)
-        #uri_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        # uri_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
-        description_column = Gtk.TreeViewColumn("Description", description_renderer, text = 2)
+        description_column = Gtk.TreeViewColumn("Description", description_renderer, text=2)
         description_column.set_resizable(True)
-        #description_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        # description_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
-        tags_column = Gtk.TreeViewColumn("Tags", tags_renderer, text = 3)
+        tags_column = Gtk.TreeViewColumn("Tags", tags_renderer, text=3)
         tags_column.set_resizable(True)
-        #tags_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
+        # tags_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         list_view.append_column(title_column)
         list_view.append_column(uri_column)
@@ -177,8 +182,8 @@ class ItemList:
 
         return tree_view
 
-class PropagateScrollbar(Gtk.ScrolledWindow):
 
+class PropagateScrollbar(Gtk.ScrolledWindow):
     def do_get_preferred_width(self):
         child = self.get_child()
         return child.get_preferred_width()
