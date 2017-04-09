@@ -107,7 +107,7 @@ class ItemList:
         folder_icon_renderer = Gtk.CellRendererPixbuf()
         iconuri_renderer = Gtk.CellRendererPixbuf()
 
-        tree_view = Gtk.TreeView()
+        list_view = Gtk.TreeView()
         model = Gtk.ListStore(str, str, str, str, GdkPixbuf.Pixbuf, GObject.TYPE_PYOBJECT)
 
         if parent.children is not None: # empty folder
@@ -119,14 +119,14 @@ class ItemList:
 
                 model.append([child.title, child.uri, child.description, child.tags, icon, child])
 
-        tree_view.set_model(model)
+        list_view.set_model(model)
 
         title_renderer = Gtk.CellRendererText()
-        title_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
+        #title_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         uri_renderer = Gtk.CellRendererText()
         uri_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         description_renderer = Gtk.CellRendererText()
-        description_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
+        #description_renderer.props.ellipsize = Pango.EllipsizeMode.MIDDLE
         tags_renderer = Gtk.CellRendererText()
 
         title_column = Gtk.TreeViewColumn("Title")
@@ -135,11 +135,12 @@ class ItemList:
         title_column.add_attribute(folder_icon_renderer, "pixbuf", 4)
         title_column.add_attribute(title_renderer, "text", 0)
         title_column.set_min_width(100)
-        #title_column.set_resizable(True)
+        title_column.set_resizable(True)
         #title_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         uri_column = Gtk.TreeViewColumn("URL", uri_renderer, text=1)
         uri_column.set_resizable(True)
+        uri_column.set_min_width(100)
         #uri_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
         description_column = Gtk.TreeViewColumn("Description", description_renderer, text = 2)
@@ -150,13 +151,15 @@ class ItemList:
         tags_column.set_resizable(True)
         #tags_column.set_sizing(Gtk.TreeViewColumnSizing.GROW_ONLY)
 
-        tree_view.append_column(title_column)
-        tree_view.append_column(uri_column)
-        tree_view.append_column(description_column)
-        tree_view.append_column(tags_column)
+        list_view.append_column(title_column)
+        list_view.append_column(uri_column)
+        list_view.append_column(description_column)
+        list_view.append_column(tags_column)
 
-        return tree_view
-    
+        list_view.set_name("bookmark-list")
+
+        return list_view
+
     def make_empty_list(self):
 
         tree_view = Gtk.TreeView()
@@ -173,3 +176,9 @@ class ItemList:
         tree_view.append_column(uri_column)
 
         return tree_view
+
+class PropagateScrollbar(Gtk.ScrolledWindow):
+
+    def do_get_preferred_width(self):
+        child = self.get_child()
+        return child.get_preferred_width()

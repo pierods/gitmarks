@@ -40,14 +40,11 @@ class GMWindow(Gtk.Window):
         self.vbox.pack_start(self.hbox, True, True, 0)
         self.vbox.pack_end(self.status_bar, False, True, 0)
         self.connect("delete-event", Gtk.main_quit)
-        self.connect("window-state-event", self.on_resize)
 
         self.gio_settings = settings.GitmarksSettings().create_gio_settings(GLib.get_current_dir())
 
         if self.init_settings() is None:
             sys.exit(0)
-
-
 
     def draw_tree(self, root_bookmark:bookmarks.Bookmark):
         if self.tree_view is not None:
@@ -59,13 +56,23 @@ class GMWindow(Gtk.Window):
             self.item_list.destroy()
 
         self.tree_view = widgets.FolderTree().make_tree(root_bookmark)
-        self.hbox.pack1(self.tree_view, True, True)
+        self.tv_scroll = widgets.PropagateScrollbar(None, None)
+        self.tv_scroll.set_propagate_natural_width(True)
+        self.tv_scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        self.tv_scroll.add(self.tree_view)
+        self.hbox.pack1(self.tv_scroll, True, False)
         select_event = self.tree_view.get_selection()
         select_event.connect("changed", self.on_tree_selection_changed)
+        self.tv_scroll.show()
         self.tree_view.show()
 
         self.item_list = widgets.ItemList().make_empty_list()
-        self.hbox.pack2(self.item_list, True, True)
+        self.itemlist_scroll = widgets.PropagateScrollbar(None, None)
+        self.itemlist_scroll.set_propagate_natural_width(True)
+        self.itemlist_scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        self.itemlist_scroll.add(self.item_list)
+        self.hbox.pack2(self.itemlist_scroll, True, True)
+        self.itemlist_scroll.show()
         self.item_list.show()
 
     def on_tree_selection_changed(self, selection):
@@ -77,12 +84,10 @@ class GMWindow(Gtk.Window):
                 self.item_list.destroy()
 
             self.item_list = widgets.ItemList().make_list(folder)
-            self.hbox.pack2(self.item_list, True, True)
+            self.itemlist_scroll.add(self.item_list)
+            self.hbox.pack2(self.itemlist_scroll, True, True)
+            self.itemlist_scroll.show()
             self.item_list.show()
-
-    def on_resize(self, widget, event):
-        if self.item_list is not None:
-            self.item_list.columns_autosize()
 
     def init_settings(self):
 
