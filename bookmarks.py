@@ -1,7 +1,4 @@
 import json
-import sys
-
-from pprint import pprint
 
 class Bookmark:
 
@@ -19,10 +16,18 @@ class Bookmark:
     self. iconuri = iconuri
     self.children = children
 
-class FirefoxImporter:
+class FirefoxMarshaller:
 
+    def import_firefox_json(self, json_file):
+        json_data = open(json_file)
+        bookmark_root = json.load(json_data, object_hook=self.decode)
+        json_data.close()
+        return bookmark_root
 
-    def object_decoder(self, obj):
+    def export_to_json(self, bookmark_root:Bookmark):
+        return json.dumps(bookmark_root, cls=Encoder)
+
+    def decode(self, obj):
         if not 'type'in obj: # annos - store
             self.annos = obj
             return None
@@ -50,12 +55,8 @@ class FirefoxImporter:
             title = "--------------------------------------------------------"
         else:
             title = obj['title']
-
         return Bookmark(obj['type'], obj['guid'], obj['id'], tags, title, description, obj['index'], obj['dateAdded'], obj['lastModified'], uri, iconuri, children)
 
-
-    def import_firefox_json(self, json_file):
-        json_data = open(json_file)
-        bookmark_root = json.load(json_data, object_hook=self.object_decoder)
-        json_data.close()
-        return bookmark_root
+class Encoder(json.JSONEncoder):
+    def default(self, o):
+        return o.__dict__

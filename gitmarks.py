@@ -1,4 +1,5 @@
 import gi
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GLib
 
@@ -10,8 +11,37 @@ import git
 import json
 import sys
 
-class GMWindow(Gtk.Window):
 
+class OpenFileHandler:
+    def __init__(self, parent, status_bar, gm_dispatcher: dispatcher.Dispatcher):
+        self.parent = parent
+        self.status_bar = status_bar
+        self.gm_dispatcher = gm_dispatcher
+        self.status_bar_context_id = status_bar.get_context_id("OpenFileHandlerContext")
+
+    def command_name(self):
+        return "open_file"
+
+    def handle(self, source, command):
+        dialog = Gtk.FileChooserDialog("Please choose a file", self.parent, Gtk.FileChooserAction.OPEN,
+                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+        # self.parent.add_filters(dialog)
+        json_file = None
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            json_file = dialog.get_filename()
+            self.status_bar.push(self.status_bar_context_id, "Opening " + json_file)
+        elif response == Gtk.ResponseType.CANCEL:
+            self.status_bar.push(self.status_bar_context_id, "No file selected")
+        dialog.destroy()
+
+        if not json_file == None:
+            root_bookmark = bookmarks.FirefoxMarshaller().import_firefox_json(json_file)
+            self.parent.draw_tree(root_bookmark)
+            print(self.profile)
+
+
+class GMWindow(Gtk.Window):
     def __init__(self):
 
         h = Gdk.Screen().height()
@@ -19,14 +49,14 @@ class GMWindow(Gtk.Window):
 
         Gtk.Window.__init__(self, title="Gitmarks")
         self.props.resizable = True
-        self.props.default_width = w/3
+        self.props.default_width = w / 3
         self.props.default_height = h
         self.status_bar = Gtk.Statusbar.new()
         self.tree_view = None
         self.item_list = None
 
         gm_dispatcher = dispatcher.Dispatcher()
-        ofh = dispatcher.OpenFileHandler(self, self.status_bar, gm_dispatcher)
+        ofh = OpenFileHandler(self, self.status_bar, gm_dispatcher)
         handlers = [ofh]
         gm_dispatcher.load_handlers(handlers)
 
@@ -49,7 +79,7 @@ class GMWindow(Gtk.Window):
         if self.init_settings() is None:
             sys.exit(0)
 
-    def draw_tree(self, root_bookmark:bookmarks.Bookmark):
+    def draw_tree(self, root_bookmark: bookmarks.Bookmark):
         if self.tree_view is not None:
             self.hbox.remove(self.tree_view)
             self.tree_view.destroy()
@@ -96,7 +126,8 @@ class GMWindow(Gtk.Window):
 
         default_profile = self.gio_settings.get_string("default-profile")
         if default_profile == "":
-            dialog = Gtk.Dialog("No profile found", self, 0, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK))
+            dialog = Gtk.Dialog("No profile found", self, 0,
+                                (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK))
             dialog.set_modal(True)
             dialog.set_default_size(350, 100)
             label = Gtk.Label.new("Enter a new profile name")
@@ -116,16 +147,19 @@ class GMWindow(Gtk.Window):
                 json_profile = json.dump(default_profile)
                 self.gio_settings.set_string("profiles", json_profile)
                 self.gio_settings.set_string("default-profile", json_profile)
-                self.profile_label.set_text(entered_text)
         else:
             default_profile = json.loads(default_profile)
             self.profile_label.set_text(default_profile)
+
+        self.profile_label.set_text(default_profile)
+        self.profile = default_profile
 
         repo_dir = settings.GitmarksSettings().get_repo_dir()
         self.git = git.Git(repo_dir)
         if not self.git.hasprofile(default_profile):
             self.git.create_profile(default_profile)
         return default_profile
+
 
 win = GMWindow()
 win.show_all()
